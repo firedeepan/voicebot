@@ -79,10 +79,14 @@ export default function Home() {
     const loadDetails = async () => {
       setDetailsLoading(true);
       setError("");
-      try {
+    try {
         const res = await fetch(`/api/elevenlabs/agents/${selectedAgentId}`, { cache: "no-store" });
-        const data: AgentDetails = await res.json();
-        if (!res.ok) throw new Error((data as any)?.error || "Failed to load agent details");
+        const raw = await res.json();
+        if (!res.ok) {
+          const msg = typeof raw?.error === "string" ? raw.error : "Failed to load agent details";
+          throw new Error(msg);
+        }
+        const data = raw as AgentDetails;
         setAgentDetails(data);
 
         const fm = data.conversation_config?.agent?.first_message || "";
@@ -168,7 +172,7 @@ export default function Home() {
         if (data.status === "done" || data.status === "failed" || data.status === "error") {
           setPolling(false);
         }
-      } catch (e) {
+      } catch {
         // stop polling on error
         setPolling(false);
       }

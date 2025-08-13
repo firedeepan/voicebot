@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 
 const apiKey = process.env.ELEVENLABS_API_KEY as string;
@@ -5,12 +6,12 @@ const apiBase = (process.env.ELEVENLABS_API_BASE || "https://api.elevenlabs.io")
 
 export async function GET(
   _req: Request,
-  { params }: { params: { agentId: string } }
+  context: any
 ) {
   if (!apiKey) {
     return NextResponse.json({ error: "Missing ELEVENLABS_API_KEY" }, { status: 500 });
   }
-  const { agentId } = params;
+  const { agentId } = await context.params;
   try {
     const res = await fetch(`${apiBase}/v1/convai/agents/${agentId}`, {
       headers: { "xi-api-key": apiKey },
@@ -29,12 +30,12 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { agentId: string } }
+  context: any
 ) {
   if (!apiKey) {
     return NextResponse.json({ error: "Missing ELEVENLABS_API_KEY" }, { status: 500 });
   }
-  const { agentId } = params;
+  const { agentId } = await context.params;
   try {
     const body = await req.json();
     const res = await fetch(`${apiBase}/v1/convai/agents/${agentId}`, {
